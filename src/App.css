@@ -1,38 +1,144 @@
-.App {
-  text-align: center;
+@import url('https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/css/lightbox.min.css');
+
+@font-face {
+	font-family: "ABeeZee";
+	src: url("Fonts/ABeeZee-Regular.ttf");
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.page-container {
+	font-family: ABeeZee, Arial;
+	margin: 1em;
+	position: relative;
+	min-height: 96vh;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.header {
+	display: flex;
+	justify-content: space-between;
+	margin-left: 3em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.home {
+	font-size: 24px;
+	text-decoration: none;
+	color: black;
+	cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+.menu {
+	display: flex;
+	margin-right: 3em;
+	clear: both;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.menu-text {
+	float: right;
+	margin: 1em;
+	text-decoration: none;
+	color: black;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+.link-text {
+	float: right;
+	margin: 1em;
+	text-decoration: none;
+	color: black;
+}
+
+.body {
+	display: flex;
+}
+
+.body > div {
+	margin-left: 10em;
+}
+
+.body-index {
+	display: flex;
+	margin-top: 10em;
+}
+
+.body-index > div {
+	margin: 1em;
+}
+
+.home-body {
+	font-size: 55px;
+}
+
+.project-container {
+	display: flex;
+	margin: 3em;
+	margin-bottom: 5em;
+}
+
+.project-container > img {
+	width: 300px;
+	height: auto;
+}
+
+.project-container > div {
+	margin-left: 3em;
+}
+
+.project-container > div > p {
+	font-size: large;
+}
+
+.project-img {
+	width: 128px;
+	height: auto;
+}
+
+.images {
+	margin: 3em;
+}
+
+.image {
+	height: 300px;
+	width: auto;
+	object-fit: cover;
+	margin: 0.5em;
+	cursor: pointer;
+}
+
+.back-to-top {
+	position: fixed;
+	bottom: 20px;
+	right: 30px;
+	z-index: 99;
+	cursor: pointer;
+}
+
+.back-to-top > img {
+	width: 64px;
+	height: auto;
+}
+
+.back-to-top:hover > img {
+	filter: invert(95%);
+}
+
+.videos {
+	margin: 3em;
+}
+
+.video {
+	object-fit: cover;
+	margin: 0.5em;
+}
+
+.footer {
+	display: flex;
+	justify-content: space-between;
+	position: absolute;
+	bottom: 0;
+	width: 96%;
+	height: 2.5rem;
+}
+
+.footer-menu {
+	display: flex;
 }
