@@ -1,0 +1,33 @@
+{
+  "files": {
+    "main.css": "/cs185-project-react/static/css/main.fd2b4644.chunk.css",
+    "main.js": "/cs185-project-react/static/js/main.755222ca.chunk.js",
+    "main.js.map": "/cs185-project-react/static/js/main.755222ca.chunk.js.map",
+    "runtime-main.js": "/cs185-project-react/static/js/runtime-main.9c810152.js",
+    "runtime-main.js.map": "/cs185-project-react/static/js/runtime-main.9c810152.js.map",
+    "static/js/2.8c0accd8.chunk.js": "/cs185-project-react/static/js/2.8c0accd8.chunk.js",
+    "static/js/2.8c0accd8.chunk.js.map": "/cs185-project-react/static/js/2.8c0accd8.chunk.js.map",
+    "index.html": "/cs185-project-react/index.html",
+    "precache-manifest.67e9b5ec46dc8a7d46da0265e630a840.js": "/cs185-project-react/precache-manifest.67e9b5ec46dc8a7d46da0265e630a840.js",
+    "service-worker.js": "/cs185-project-react/service-worker.js",
+    "static/css/main.fd2b4644.chunk.css.map": "/cs185-project-react/static/css/main.fd2b4644.chunk.css.map",
+    "static/js/2.8c0accd8.chunk.js.LICENSE.txt": "/cs185-project-react/static/js/2.8c0accd8.chunk.js.LICENSE.txt",
+    "static/media/App.css": "/cs185-project-react/static/media/ABeeZee-Regular.c6d6bab0.ttf",
+    "static/media/back-to-top.png": "/cs185-project-react/static/media/back-to-top.2d354e7e.png",
+    "static/media/beach.jpg": "/cs185-project-react/static/media/beach.d67f0015.jpg",
+    "static/media/dodge-logo.png": "/cs185-project-react/static/media/dodge-logo.2c60a770.png",
+    "static/media/img-1.jpg": "/cs185-project-react/static/media/img-1.ef0d6a00.jpg",
+    "static/media/img-2.jpg": "/cs185-project-react/static/media/img-2.8cdd1442.jpg",
+    "static/media/img-3.jpg": "/cs185-project-react/static/media/img-3.8a8ab93e.jpg",
+    "static/media/img-4.jpg": "/cs185-project-react/static/media/img-4.02614206.jpg",
+    "static/media/img-5.jpg": "/cs185-project-react/static/media/img-5.8100a0f9.jpg",
+    "static/media/img-6.jpg": "/cs185-project-react/static/media/img-6.f9404209.jpg",
+    "static/media/planets-logo.png": "/cs185-project-react/static/media/planets-logo.883a1c87.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9c810152.js",
+    "static/js/2.8c0accd8.chunk.js",
+    "static/css/main.fd2b4644.chunk.css",
+    "static/js/main.755222ca.chunk.js"
+  ]
+}
