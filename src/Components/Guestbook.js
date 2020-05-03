@@ -27,8 +27,9 @@ export class Guestbook extends Component {
 			const posts = snapshot.val()
 
 			if (posts) {
+				const filteredPosts = Object.values(posts).filter((post) => post.public);
 				this.setState({
-					'posts': Object.values(posts)
+					'posts': filteredPosts
 				});
 			}
 		})
@@ -55,7 +56,7 @@ export class Guestbook extends Component {
 			message: this.state.message,
 			public: this.state.public,
 			email: this.state.email,
-			datetime: new Date()
+			datetime: Date.now()
 		}
 
 		if (post.name.length <= 5 || post.name.length >= 20) {
@@ -75,17 +76,34 @@ export class Guestbook extends Component {
 
 		firebase.database().ref('posts').push().set(post);
 		alert('You successfully sent your message!');
+		console.log(post);
+	}
+
+	formatDate(epoch) {
+		const dt = new Date(epoch);
+		let d = dt.getDate();
+		let mo = dt.getMonth() + 1;
+		let y = dt.getFullYear();
+		let h = dt.getHours();
+		let mi = dt.getMinutes();
+		let amPM = h < 12 ? 'am' : 'pm';
+		h %= 12;
+		h = h === 0 ? 12 : h;
+		return mo + '/' + d + '/' + y + ', ' + h + ':' + mi + amPM;
 	}
 
 	getPosts() {
 		if (!this.state.posts) return;
 
-		return this.state.posts.map((post) => (
-			<div className="post-container">
-				<h3>{post.name}</h3>
-				<h4>{post.description}</h4>
-				<p>{post.message}</p>
-				<p>{post.datetime}</p>
+		return this.state.posts.map((post, index) => (
+			<div className="post-container"
+				key={post.name + index}>
+				<div>
+					<span className="post-name">{post.name}</span>
+					<span className="post-datetime">{this.formatDate(post.datetime)}</span>
+				</div>
+				<span className="post-description">{post.description}</span>
+				<span className="post-message">{post.message}</span>
 			</div>
 		));
 	}
