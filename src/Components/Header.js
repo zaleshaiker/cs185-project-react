@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import TabList from './TabList';
+import { Link } from 'react-router-dom';
 
 export class Header extends Component {
 	render() {
 		return (
 			<div className="header">
-				<p className="home"
+				<Link className="home-text" to="/"
 					onClick={this.props.changeTab.bind(this, 0)}>
-						Zain<br/>Aleshaiker
-				</p>
+					Zain<br/>Aleshaiker
+				</Link>
 
 				<div className="menu">
 					<TabList tabs={this.props.tabs}

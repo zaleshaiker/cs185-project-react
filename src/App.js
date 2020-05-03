@@ -30,6 +30,10 @@ export class App extends Component {
 			{
 				id: 3,
 				title: 'Videos'
+			},
+			{
+				id: 4,
+				title: 'Guestbook'
 			}
 		]
 		return (
@@ -38,7 +42,7 @@ export class App extends Component {
 					activeTab={this.state.activeTab}
 					changeTab={this.changeTab}/>
 				
-				<Body activeTab={this.state.activeTab}/>
+				<Body/>
 				
 				<Footer/>
 			</div>

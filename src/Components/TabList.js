@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 export class TabList extends Component {
 	addStyling = (id) => {
@@ -11,11 +12,13 @@ export class TabList extends Component {
 
 	render() {
 		return this.props.tabs.map((tab) => (
-			<p className="menu-text"
+			<Link className="menu-text"
+				to={"/" + tab.title}
 				style={this.addStyling(tab.id)}
-				onClick={this.props.changeTab.bind(this, tab.id)}>
+				onClick={this.props.changeTab.bind(this, tab.id)}
+				key={tab.title}>
 					{tab.title}
-			</p>
+			</Link>
 		));
 	}
 }

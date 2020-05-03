@@ -3,7 +3,9 @@ import Home from './Home';
 import Projects from './Projects';
 import Images from './Images';
 import Videos from './Videos';
+import Guestbook from './Guestbook';
 import BackToTop from '../Images/back-to-top.png';
+import { Switch, Route } from 'react-router-dom';
 
 export class Body extends Component {
 	constructor() {
@@ -16,7 +18,7 @@ export class Body extends Component {
 	componentDidMount() {
 		document.addEventListener('scroll', () => {
 			this.setState({
-				backToTopVisible: window.pageYOffset > 0
+				backToTopVisible: window.pageYOffset > 100
 			})
 		});
 	}
@@ -31,7 +33,29 @@ export class Body extends Component {
 			return <Images/>
 		} else if (activeTab === 3) {
 			return <Videos/>
+		} else if (activeTab === 4) {
+			return <Guestbook/>
 		}
+	}
+
+	routeContents = () => {
+		return <Switch>
+			<Route path="/" exact>
+				<Home/>
+			</Route>
+			<Route path="/projects">
+				<Projects/>
+			</Route>
+			<Route path="/images">
+				<Images/>
+			</Route>
+			<Route path="/videos">
+				<Videos/>
+			</Route>
+			<Route path="/guestbook">
+				<Guestbook/>
+			</Route>
+		</Switch>
 	}
 
 	backToTopStyle = () => {
@@ -52,7 +76,7 @@ export class Body extends Component {
 	render() {
 		return (
 			<div className="body">
-				{this.displayContents()}
+				{this.routeContents()}
 
 				<div className="back-to-top"
 					style={this.backToTopStyle()}

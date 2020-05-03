@@ -4,7 +4,7 @@ import BeachImage from '../Images/beach.jpg';
 export class Home extends Component {
 	render() {
 		return (
-			<div className="body-index">
+			<div className="body-home">
 				<div>
 					<img src={BeachImage} alt="Beach in Isla Vista"/>
 				</div>
