@@ -13,7 +13,7 @@ export class TabList extends Component {
 	render() {
 		return this.props.tabs.map((tab) => (
 			<Link className="menu-text"
-				to={"/" + tab.title}
+				to={"/cs185-project-react/" + tab.title}
 				style={this.addStyling(tab.id)}
 				onClick={this.props.changeTab.bind(this, tab.id)}
 				key={tab.title}>

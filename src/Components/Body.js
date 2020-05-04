@@ -40,19 +40,19 @@ export class Body extends Component {
 
 	routeContents = () => {
 		return <Switch>
-			<Route path="/" exact>
+			<Route path="/cs185-project-react/" exact>
 				<Home/>
 			</Route>
-			<Route path="/projects">
+			<Route path="/cs185-project-react/projects">
 				<Projects/>
 			</Route>
-			<Route path="/images">
+			<Route path="/cs185-project-react/images">
 				<Images/>
 			</Route>
-			<Route path="/videos">
+			<Route path="/cs185-project-react/videos">
 				<Videos/>
 			</Route>
-			<Route path="/guestbook">
+			<Route path="/cs185-project-react/guestbook">
 				<Guestbook/>
 			</Route>
 		</Switch>

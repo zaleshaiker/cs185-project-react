@@ -6,7 +6,7 @@ export class Header extends Component {
 	render() {
 		return (
 			<div className="header">
-				<Link className="home-text" to="/"
+				<Link className="home-text" to="/cs185-project-react/"
 					onClick={this.props.changeTab.bind(this, 0)}>
 					Zain<br/>Aleshaiker
 				</Link>
