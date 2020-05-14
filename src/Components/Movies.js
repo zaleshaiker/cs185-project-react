@@ -27,7 +27,7 @@ export class Movies extends Component {
 
 	componentDidMount() {
 		MovieIds.split('\n').map((id, i) => {
-			return Axios.get('http://www.omdbapi.com/?apikey=' + process.env.REACT_APP_OMDB_API_KEY + '&i=' + id)
+			return Axios.get('https://www.omdbapi.com/?apikey=' + process.env.REACT_APP_OMDB_API_KEY + '&i=' + id)
 			.then((response) => {
 				let movies = this.state.movies;
 				movies[i] = response.data
