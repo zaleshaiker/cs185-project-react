@@ -340,6 +340,52 @@ button::-moz-focus-inner {
 	font-size: 18px;
 }
 
+/* Movies */
+.movie {
+	width: 450px;
+	padding: 1em;
+	cursor: pointer;
+	-webkit-filter: brightness(100%);
+}
+
+.movie:hover {
+	-webkit-filter: brightness(70%);
+	-webkit-transition: all 1s ease;
+	-moz-transition: all 1s ease;
+	-o-transition: all 1s ease;
+	-ms-transition: all 1s ease;
+	transition: all 1s ease;
+}
+
+.movie-lightbox {
+	display: flex;
+	background-color: white;
+	width: 800px;
+	height: 400px;
+}
+
+.movie-lightbox-img {
+	height: 400px;
+}
+
+.movie-lightbox > div {
+	padding: 1em;
+}
+
+.movie-lightbox > div > h2 {
+	text-align: center;
+}
+
+.movie-lightbox-director {
+	color: gray;
+}
+
+.movie-lightbox-rating {
+	position: absolute;
+	bottom: 5%;
+	color: darkolivegreen;
+}
+
 /* Footer */
 .footer {
 	display: flex;

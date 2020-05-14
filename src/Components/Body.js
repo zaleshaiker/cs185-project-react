@@ -6,6 +6,7 @@ import Videos from './Videos';
 import Guestbook from './Guestbook';
 import BackToTop from '../Images/back-to-top.png';
 import { Switch, Route } from 'react-router-dom';
+import Movies from './Movies';
 
 export class Body extends Component {
 	constructor() {
@@ -35,6 +36,8 @@ export class Body extends Component {
 			return <Videos/>
 		} else if (activeTab === 4) {
 			return <Guestbook/>
+		} else if (activeTab === 5) {
+			return <Movies/>
 		}
 	}
 
@@ -54,6 +57,9 @@ export class Body extends Component {
 			</Route>
 			<Route path="/cs185-project-react/guestbook">
 				<Guestbook/>
+			</Route>
+			<Route path="/cs185-project-react/movies">
+				<Movies/>
 			</Route>
 		</Switch>
 	}
