@@ -1,97 +1,452 @@
 import React, { Component } from 'react';
-import MovieIds from './MovieIds';
-import Movie1 from '../Images/Posters/Fight Club.jpeg';
-import Movie2 from '../Images/Posters/A Clockwork Orange.jpeg';
-import Movie3 from '../Images/Posters/Scarface.jpeg';
-import Movie4 from '../Images/Posters/Fear and Loathing in Las Vegas.jpeg';
-import Movie5 from '../Images/Posters/La La Land.jpeg';
-import Movie6 from '../Images/Posters/Pulp Fiction.jpeg';
-import Movie7 from '../Images/Posters/Parasite.jpeg';
-import Movie8 from '../Images/Posters/American History X.jpeg';
-import Movie9 from '../Images/Posters/The Birds.jpeg';
-import Movie10 from '../Images/Posters/The Shining.jpeg';
-import Movie11 from '../Images/Posters/American Beauty.jpeg';
-import Movie12 from '../Images/Posters/The Graduate.jpeg';
 import Axios from 'axios';
 import { PopupboxManager, PopupboxContainer } from 'react-popupbox';
-import 'react-popupbox/dist/react-popupbox.css';
+import 'react-popupbox/dist/react-popupbox.css'; 
+import config from '../config';
+
+const firebase = require('firebase');
 
 export class Movies extends Component {
 	constructor() {
 		super();
 		this.state = {
-			movies: []
+			movies: [],
+			moviesToLoad: 6,
+			last: '',
+			loaded: 0,
+			loading: true,
+			movieID: '',
+			listName: '',
+			lists: {},
+			movieListPairs: [],
+			addToListName: 'Add to List',
+			currentList: {id: '', name: 'All'},
+			searchQuery: '',
+			filteredMovies: []
 		};
 		this.wrapper = React.createRef();
+		this.moviesScroll = React.createRef();
 	}
 
 	componentDidMount() {
-		MovieIds.split('\n').map((id, i) => {
-			return Axios.get('https://www.omdbapi.com/?apikey=' + process.env.REACT_APP_OMDB_API_KEY + '&i=' + id)
-			.then((response) => {
-				let movies = this.state.movies;
-				movies[i] = response.data
+		if (!firebase.apps.length) {
+			firebase.initializeApp(config);
+		}
 
-				this.setState({movies});
+		this.loadMovies();
+
+		let ref = firebase.database().ref('lists');
+		ref.orderByChild('name').on('value', snapshot => {
+			if (!snapshot.val()) return;
+			
+			let lists = {};
+			
+			Object.values(snapshot.val()).forEach(list => {
+				lists[list.id] = list.name;
+			});
+
+			this.setState({
+				lists: lists
+			});
+		});
+
+		ref = firebase.database().ref('movie-lists');
+		ref.orderByKey().on('value', snapshot => {
+			if (!snapshot.val()) return;
+			
+			let movieLists = [];
+
+			Object.values(snapshot.val()).forEach(movieListPair => {
+				let pair = Object.entries(movieListPair)[0];
+				movieLists.push(pair[0] + ' - ' + pair[1]);
+			});
+
+			this.setState({
+				movieListPairs: movieLists
+			});
+		});
+
+		window.addEventListener("scroll", () => {
+			if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+				this.loadMore();
+			}
+		});
+	}
+
+	loadMovies = () => {
+		if (this.state.currentList.name === 'All') {
+			let ref = firebase.database()
+				.ref('movies')
+				.orderByChild('title')
+				.limitToFirst(this.state.moviesToLoad);
+			
+			ref.on('child_added', snapshot => {
+				let movie = snapshot.val();
+				let last = movie.title;
+				// console.log(movie);
+
+				let movies = this.state.movies;
+				movies.push(movie);
+
+				this.setState({
+					'movies': movies,
+					'last': last,
+					'loaded': this.state.loaded + 1 % this.state.moviesToLoad,
+					'loading': this.state.loaded + 1 < this.state.moviesToLoad
+				});
+			});
+		}
+
+		let movieIDs = this.getIDsInList();
+		
+		movieIDs.forEach(movieID => {
+			let ref = firebase.database()
+				.ref('movies')
+				.orderByChild('id')
+				.equalTo(movieID)
+				.limitToFirst(1);
+
+			ref.on('child_added', snapshot => {
+				let movie = snapshot.val();
+				let last = movie.title;
+				// console.log(movie);
+	
+				if (this.state.currentList.name !== 'All') {
+					let show = false;
+					movieIDs.forEach(movieID => {
+						if (movie.id === movieID) show = true;
+					});
+					if (!show) return;
+				}
+	
+				let movies = this.state.movies;
+				movies.push(movie);
+	
+				this.setState({
+					'movies': movies,
+					'last': last,
+					'loaded': this.state.loaded + 1 % this.state.moviesToLoad,
+					'loading': this.state.loaded + 1 < this.state.moviesToLoad
+				});
 			});
 		});
 	}
 
-	getMoviePoster = (index) => {
-		if (index + 1 === 1) {
-			return Movie1;
-		} else if (index + 1 === 2) {
-			return Movie2;
-		} else if (index + 1 === 3) {
-			return Movie3;
-		} else if (index + 1 === 4) {
-			return Movie4;
-		} else if (index + 1 === 5) {
-			return Movie5;
-		} else if (index + 1 === 6) {
-			return Movie6;
-		} else if (index + 1 === 7) {
-			return Movie7;
-		} else if (index + 1 === 8) {
-			return Movie8;
-		} else if (index + 1 === 9) {
-			return Movie9;
-		} else if (index + 1 === 10) {
-			return Movie10;
-		} else if (index + 1 === 11) {
-			return Movie11;
-		} else if (index + 1 === 12) {
-			return Movie12;
+	loadMore = () => {
+		if (this.state.loading) return;
+		// console.log('load more');
+		
+		this.setState({
+			loading: true,
+			loaded: 0
+		});
+		
+		let ref = firebase.database()
+			.ref('movies')
+			.orderByChild('title')
+			.startAt(this.state.last)
+			.limitToFirst(this.state.moviesToLoad + 1);
+
+		let movieIDs = [];
+		if (this.state.currentList.name !== 'All') movieIDs = this.getIDsInList();
+
+		ref.on('child_added', snapshot => {
+			const movie = snapshot.val();
+
+			let duplicate = false;
+			this.state.movies.forEach(m => {
+				if (m.id === movie.id) duplicate = true;
+			});
+			if (duplicate) return;
+
+			// console.log(movie);
+
+			if (this.state.currentList.name !== 'All') {
+				let show = false;
+				movieIDs.forEach(movieID => {
+					if (movie.id === movieID) show = true;
+				});
+				if (!show) return;
+			}
+
+			let movies = this.state.movies;
+			movies.push(movie);
+
+			let last = movie.title;
+
+			this.setState({
+				'movies': movies,
+				'last': last,
+				'loaded': this.state.loaded + 1 % this.state.moviesToLoad,
+				'loading': this.state.loaded + 1 < this.state.moviesToLoad
+			});
+		});
+	}
+
+	addMovie = (event) => {
+		event.preventDefault();
+		
+		if (this.state.movieID.slice(0, 2) !== 'tt' || !/^\d+$/.test(this.state.movieID.slice(2))) {
+			const title = this.state.movieID;
+
+			this.setState({
+				'movieID': ''
+			});
+
+			Axios.get('https://www.omdbapi.com/?apikey=' + process.env.REACT_APP_OMDB_API_KEY + '&t=' + title)
+			.then(response => {
+				if (response.data.Response === 'False') {
+					alert('Movie not found');
+					return;
+				}
+
+				let duplicate = false;
+				this.state.movies.forEach(movie => {
+					if (movie.id === response.data.imdbID) duplicate = true;
+				});
+
+				if (duplicate) {
+					alert('Movie already added');
+					return;
+				}
+
+				let movie = [];
+				movie.id = response.data.imdbID;
+				movie.title = response.data.Title;
+				movie.director = response.data.Director;
+				movie.year = response.data.Year;
+				movie.plot = response.data.Plot;
+				movie.rating = response.data.imdbRating;
+
+				Axios.get('https://api.themoviedb.org/3/search/movie?api_key=' + process.env.REACT_APP_TMDB_API_KEY + '&language=en-US&query=' + movie.title + '&page=1&year=' + movie.year)
+				.then(response => {
+					if (response.data.results.length === 0) {
+						alert('Movie not found');
+						return;
+					}
+
+					movie.poster = 'https://image.tmdb.org/t/p/w500' + response.data.results[0].poster_path;
+
+					firebase.database().ref('movies').push().set(movie);
+
+					window.scrollTo({
+						top: document.body.scrollHeight,
+						behavior: 'smooth'
+					});
+				});
+			});
+			
+			return;
 		}
+
+		const id = this.state.movieID;
+
+		this.setState({
+			'movieID': ''
+		});
+		
+		let duplicate = false;
+		this.state.movies.forEach(movie => {
+			if (movie.id === id) duplicate = true;
+		});
+
+		if (duplicate) {
+			alert('Movie already added');
+			return;
+		}
+
+
+		Axios.get('https://www.omdbapi.com/?apikey=' + process.env.REACT_APP_OMDB_API_KEY + '&i=' + id)
+		.then(response => {
+			if (response.data.Response === 'False') {
+				alert('Movie not found');
+				return;
+			}
+
+			let movie = [];
+			movie.id = id;
+			movie.title = response.data.Title;
+			movie.director = response.data.Director;
+			movie.year = response.data.Year;
+			movie.plot = response.data.Plot;
+			movie.rating = response.data.imdbRating;
+
+			Axios.get('https://api.themoviedb.org/3/search/movie?api_key=' + process.env.REACT_APP_TMDB_API_KEY +'&language=en-US&query=' + movie.title + '&page=1&year=' + movie.year)
+			.then(response => {
+				if (response.data.results.length === 0) {
+					alert('Movie not found');
+					return;
+				}
+
+				movie.poster = 'https://image.tmdb.org/t/p/w500' + response.data.results[0].poster_path;
+
+				firebase.database().ref('movies').push().set(movie);
+
+				window.scrollTo({
+					top: document.body.scrollHeight,
+					behavior: 'smooth'
+				});
+			});
+		});
 	}
 
-	lockScroll = () => {
-		console.log('lock')
-		document.body.style.overflow = 'hidden'
+	addList = (event) => {
+		event.preventDefault();
+		console.log('addList: ' + this.state.listName);
+		
+		let listName = this.state.listName;
+		
+		this.setState({
+			'listName': ''
+		});
+
+		let duplicate = false;
+		Object.entries(this.state.lists).forEach(list => {
+			if (listName.toLowerCase() === list[1].toLowerCase()) duplicate = true;
+		});
+		if (duplicate) {
+			alert('List already exists');
+			return;
+		};
+		
+		let ref = firebase.database().ref('lists');
+		let listRefKey = ref.push().key;
+		
+		let updates = {};
+		updates['/lists/' + listRefKey + '/id'] = listRefKey;
+		updates['/lists/' + listRefKey + '/name'] = listName;
+
+		firebase.database().ref().update(updates);
 	}
 
-	unlockScroll = () => {
-		console.log('unlock')
-		document.body.style.overflow = 'inherit'
-	}
-
-	displayMovies = () => {
-		return this.state.movies.map((movie, i) => (
-			<img className="movie" src={this.getMoviePoster(i)}
-				key={movie.Title} alt=""
-				onClick={this.displayLightbox.bind(this, movie, i)}/>
+	getUpdateLists = () => {
+		return Object.entries(this.state.lists).map(list => (
+			<option key={list[0]}
+				value={list[0]}>{list[1]}</option>
 		));
 	}
 
-	displayLightbox = (movie, i) => {
+	getAddToLists = (id) => {
+		return Object.entries(this.state.lists).map((list, i) => (
+			<option key={list[0]}
+				value={list[0]}>{list[1]}</option>
+		));
+	}
+
+	updateList = (event) => {
+		let listName = '';
+		if (event.target.value === '') {
+			listName = 'All';
+		} else {
+			listName = this.state.lists[event.target.value];
+		}
+
+		this.setState({
+			movies: [],
+			currentList: {id: event.target.value, name: listName},
+			loaded: 0,
+			loading: true
+		});
+
+		this.forceUpdate(this.loadMovies);
+	}
+
+	addToList = (event, movieID) => {
+		let listID = event.target.value;
+		let duplicate = false;
+		this.state.movieListPairs.forEach(movieListPair => {
+			let pair = movieListPair.split(' - ');
+			if (pair[0] === listID && pair[1] === movieID) duplicate = true;
+		});
+		if (duplicate) {
+			alert('Movie already added to list');
+			return;
+		};
+		
+		let ref = firebase.database().ref('movie-lists');
+		ref.push().set({[listID]: movieID});
+
+		// this.setState({addToListName: 'Add to List'});
+		alert('Movie added to ' + this.state.lists[event.target.value]);
+	}
+
+	getIDsInList = () => {
+		let movieIDs = [];
+		this.state.movieListPairs.forEach(movieListPair => {
+			if (movieListPair.search(this.state.currentList.id) > -1) {
+				movieIDs.push(movieListPair.slice((this.state.currentList.id + ' - ').length));
+			}
+		});
+
+		return movieIDs;
+	}
+
+	search = (event) => {
+		event.preventDefault();
+	}
+
+	deleteMovie = (movieID) => {
+		console.log('deleteMovie');
+		let ref = firebase.database().ref('movies');
+		
+		ref.orderByChild('id').equalTo(movieID).limitToFirst(1).on('child_added', snapshot => {
+			console.log(snapshot.key);
+			ref.child(snapshot.key).remove();
+		});
+
+		let movies = this.state.movies;
+		
+		let toDelete = -1;
+		movies.forEach((movie, i) => {
+			if (movie.id === movieID) toDelete = i;
+		});
+		movies.splice(toDelete, 1);
+
+		this.setState({movies: movies});
+
+		PopupboxManager.close();
+	}
+
+	handleChange = (event) => {
+		this.setState({
+			[event.target.name]: event.target.value
+		});
+	}
+
+	lockScroll = () => {
+		document.body.style.overflow = 'hidden';
+	}
+
+	unlockScroll = () => {
+		document.body.style.overflow = 'inherit';
+	}
+
+	displayMovies = () => {
+		return this.state.movies.filter(movie => movie.title.toLowerCase().includes(this.state.searchQuery)).map(movie => (
+			<img className="movie" src={movie.poster}
+				key={movie.id} alt=""
+				onClick={this.displayLightbox.bind(this, movie)}/>
+		));
+	}
+
+	displayLightbox = (movie) => {
 		const content = (
 			<div className="movie-lightbox">
-				<img className="movie-lightbox-img" src={this.getMoviePoster(i)} alt=""/>
+				<img className="movie-lightbox-img" src={movie.poster} alt=""/>
 				<div>
-					<h2>{movie.Title}</h2>
-					<p className="movie-lightbox-plot">{movie.Plot}</p>
-					<p className="movie-lightbox-director">Directed by <b>{movie.Director}</b></p>
-					<p className="movie-lightbox-rating">Rating: <b>{movie.imdbRating}</b></p>
+					<h2>{movie.title}</h2>
+					<p className="movie-lightbox-plot">{movie.plot}</p>
+					<p className="movie-lightbox-director">Directed by <b>{movie.director}</b></p>
+					<p className="movie-lightbox-rating">Rating: <b>{movie.rating}</b></p>
+					
+					<div>
+						<select className="dropdown" value={this.state.addToListName} onChange={event => {this.addToList(event, movie.id)}}>
+							<option hidden value="">Add to List</option>
+							{this.getAddToLists(movie.id)}
+						</select>
+						
+						<button className="delete-button" onClick={() => {this.deleteMovie(movie.id)}}>Delete</button>
+					</div>
 				</div>
 			</div>
 		)
@@ -105,13 +460,70 @@ export class Movies extends Component {
 	}
 
 	render() {
+		const popupboxConfig = {
+			style: {
+				overflow: 'inherit'
+			}
+		}
+
 		return (
 			<div>
 				<h1>Movies</h1>
-				<div className="movies">
+				
+				<div className="movie-forms">
+					<div className="movie-add-forms">
+						<form className="movie-form" onSubmit={e => this.addMovie(e)}>
+							<div>
+								<input type="text"
+									name="movieID"
+									className="form-input-text"
+									value={this.state.movieID}
+									onChange={e => this.handleChange(e)}
+									placeholder="Enter a movie title or IMDB ID"/>
+								<span>Add a Movie</span>
+							</div>
+						</form>
+
+						<form className="movie-form" onSubmit={e => this.addList(e)}>
+							<div>
+								<input type="text"
+									name="listName"
+									className="form-input-text"
+									value={this.state.listName}
+									onChange={e => this.handleChange(e)}
+									placeholder="Enter a new list name"/>
+								<span>Create a List</span>
+							</div>
+						</form>
+						
+						<div className="dropdown">
+							<select defaultValue="All" onChange={this.updateList}>
+								<option value="">All</option>
+								{this.getUpdateLists()}
+							</select>
+						</div>
+
+					</div>
+
+					<form className="movie-form" onSubmit={e => this.search(e)}>
+						<div>
+							<input type="text"
+								name="searchQuery"
+								className="form-input-text"
+								value={this.state.searchQuery}
+								onChange={e => this.handleChange(e)}
+								placeholder="Enter a movie name"/>
+							<span>Search</span>
+						</div>
+					</form>
+					<div></div>
+				</div>
+				
+				<div className="movies"
+					ref={this.moviesScroll}>
 					{this.displayMovies()}
 
-					<PopupboxContainer />
+					<PopupboxContainer { ...popupboxConfig } />
 				</div>
 			</div>
 

@@ -21,10 +21,10 @@ export class Guestbook extends Component {
 			firebase.initializeApp(config);
 		}
 
-		let ref = firebase.database().ref('posts')
+		let ref = firebase.database().ref('posts');
 
 		ref.on('value', snapshot => {
-			const posts = snapshot.val()
+			const posts = snapshot.val();
 
 			if (posts) {
 				const filteredPosts = Object.values(posts).filter((post) => post.public);
@@ -32,7 +32,7 @@ export class Guestbook extends Component {
 					'posts': filteredPosts
 				});
 			}
-		})
+		});
 	}
 
 	handleChange = (event) => {
