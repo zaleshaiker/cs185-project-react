@@ -19,7 +19,6 @@ export class Movies extends Component {
 			listName: '',
 			lists: {},
 			movieListPairs: [],
-			addToListName: 'Add to List',
 			currentList: {id: '', name: 'All'},
 			searchQuery: '',
 			filteredMovies: []
@@ -217,6 +216,7 @@ export class Movies extends Component {
 				movie.year = response.data.Year;
 				movie.plot = response.data.Plot;
 				movie.rating = response.data.imdbRating;
+				movie.actors = response.data.Actors.split(', ');
 
 				Axios.get('https://api.themoviedb.org/3/search/movie?api_key=' + process.env.REACT_APP_TMDB_API_KEY + '&language=en-US&query=' + movie.title + '&page=1&year=' + movie.year)
 				.then(response => {
@@ -366,7 +366,6 @@ export class Movies extends Component {
 		let ref = firebase.database().ref('movie-lists');
 		ref.push().set({[listID]: movieID});
 
-		// this.setState({addToListName: 'Add to List'});
 		alert('Movie added to ' + this.state.lists[event.target.value]);
 	}
 
@@ -383,6 +382,35 @@ export class Movies extends Component {
 
 	search = (event) => {
 		event.preventDefault();
+	}
+
+	addToGraph = (movie) => {
+		console.log('movie: ' + movie.id);
+		let exists = false;
+		
+		let ref = firebase.database().ref('graph');
+		
+		ref.on('value', snapshot => {
+			console.log('get Snapshot');
+			console.log(snapshot.val());
+			
+			let movies = snapshot.val();
+			
+			if (movies) {
+				Object.entries(movies).forEach(m => {
+					console.log('m: ' + m[1].id);
+					if (m[1].id === movie.id)
+						exists = true;
+				});
+			}
+
+			if (exists) {
+				alert('Movie already in graph');
+			} else {
+				ref.off();
+				firebase.database().ref('graph').push().set(movie);
+			}
+		});
 	}
 
 	deleteMovie = (movieID) => {
@@ -440,11 +468,11 @@ export class Movies extends Component {
 					<p className="movie-lightbox-rating">Rating: <b>{movie.rating}</b></p>
 					
 					<div>
-						<select className="dropdown" value={this.state.addToListName} onChange={event => {this.addToList(event, movie.id)}}>
+						<select className="dropdown" value='Add to List' onChange={event => {this.addToList(event, movie.id)}}>
 							<option hidden value="">Add to List</option>
 							{this.getAddToLists(movie.id)}
 						</select>
-						
+						<button className="add-to-graph-button" onClick={() => this.addToGraph(movie)}>Add to Graph</button>
 						<button className="delete-button" onClick={() => {this.deleteMovie(movie.id)}}>Delete</button>
 					</div>
 				</div>
