@@ -21,7 +21,7 @@ export class Movies extends Component {
 			movieListPairs: [],
 			currentList: {id: '', name: 'All'},
 			searchQuery: '',
-			filteredMovies: []
+			graphMovies: []
 		};
 		this.wrapper = React.createRef();
 		this.moviesScroll = React.createRef();
@@ -62,6 +62,33 @@ export class Movies extends Component {
 
 			this.setState({
 				movieListPairs: movieLists
+			});
+		});
+
+		ref = firebase.database().ref('graph');
+		ref.on('child_added', snapshot => {
+			let movie = snapshot.val();
+
+			let movies = this.state.graphMovies;
+			movies.push(movie);
+
+			this.setState({
+				'graphMovies': movies
+			});
+		});
+		ref.on('child_removed', snapshot => {
+			let movie = snapshot.val();
+
+			let movies = this.state.graphMovies;
+			for (let i = 0; i < movies.length; i++) {
+				if (movies[i].id === movie.id) {
+					movies.splice(i, 1);
+					break;
+				}
+			}
+
+			this.setState({
+				'graphMovies': movies
 			});
 		});
 
@@ -384,43 +411,36 @@ export class Movies extends Component {
 		event.preventDefault();
 	}
 
-	addToGraph = (movie) => {
-		console.log('movie: ' + movie.id);
-		let exists = false;
-		
-		let ref = firebase.database().ref('graph');
-		
-		ref.on('value', snapshot => {
-			console.log('get Snapshot');
-			console.log(snapshot.val());
-			
-			let movies = snapshot.val();
-			
-			if (movies) {
-				Object.entries(movies).forEach(m => {
-					console.log('m: ' + m[1].id);
-					if (m[1].id === movie.id)
-						exists = true;
-				});
-			}
+	graphContainsMovie = (id) => {
+		let movies = this.state.graphMovies;
+		for (let i = 0; i < movies.length; i++) {
+			if (movies[i].id === id) return true;
+		}
+		return false;
+	}
 
-			if (exists) {
-				alert('Movie already in graph');
-			} else {
-				ref.off();
-				firebase.database().ref('graph').push().set(movie);
-			}
-		});
+	addToGraph = (movie) => {		
+		let exists = this.graphContainsMovie(movie.id);
+
+		if (exists) {
+			let ref = firebase.database().ref('graph');
+			let removeMovie = ref.orderByChild('id').equalTo(movie.id).limitToFirst(1).on('child_added', snapshot => {
+				ref.child(snapshot.key).remove();
+			});
+			ref.off('child_added', removeMovie);
+		} else {
+			firebase.database().ref('graph').push().set(movie);
+		}
+		this.displayLightbox(movie);
 	}
 
 	deleteMovie = (movieID) => {
-		console.log('deleteMovie');
 		let ref = firebase.database().ref('movies');
 		
-		ref.orderByChild('id').equalTo(movieID).limitToFirst(1).on('child_added', snapshot => {
-			console.log(snapshot.key);
+		let removeMovie = ref.orderByChild('id').equalTo(movieID).limitToFirst(1).on('child_added', snapshot => {
 			ref.child(snapshot.key).remove();
 		});
+		ref.off('child_added', removeMovie);
 
 		let movies = this.state.movies;
 		
@@ -472,19 +492,25 @@ export class Movies extends Component {
 							<option hidden value="">Add to List</option>
 							{this.getAddToLists(movie.id)}
 						</select>
-						<button className="add-to-graph-button" onClick={() => this.addToGraph(movie)}>Add to Graph</button>
+						<button className="add-to-graph-button" onClick={() => this.addToGraph(movie)}>
+							{this.graphContainsMovie(movie.id) ? 'Remove from Graph' : 'Add to Graph'}
+						</button>
 						<button className="delete-button" onClick={() => {this.deleteMovie(movie.id)}}>Delete</button>
 					</div>
 				</div>
 			</div>
 		)
 
-		PopupboxManager.open({content,
-			config: {
-				onOpen: this.lockScroll,
-				onClosed: this.unlockScroll
-			}
-		});
+		if (PopupboxManager.show) {
+			PopupboxManager.update({content});
+		} else {
+			PopupboxManager.open({content,
+				config: {
+					onOpen: this.lockScroll,
+					onClosed: this.unlockScroll
+				}
+			});
+		}
 	}
 
 	render() {
