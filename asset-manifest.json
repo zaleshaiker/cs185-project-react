@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/cs185-project-react/static/css/main.89f2e38d.chunk.css",
-    "main.js": "/cs185-project-react/static/js/main.15fd8772.chunk.js",
-    "main.js.map": "/cs185-project-react/static/js/main.15fd8772.chunk.js.map",
+    "main.css": "/cs185-project-react/static/css/main.cf4a627b.chunk.css",
+    "main.js": "/cs185-project-react/static/js/main.7885edb7.chunk.js",
+    "main.js.map": "/cs185-project-react/static/js/main.7885edb7.chunk.js.map",
     "runtime-main.js": "/cs185-project-react/static/js/runtime-main.9c810152.js",
     "runtime-main.js.map": "/cs185-project-react/static/js/runtime-main.9c810152.js.map",
     "static/css/2.ccab356c.chunk.css": "/cs185-project-react/static/css/2.ccab356c.chunk.css",
-    "static/js/2.655a9030.chunk.js": "/cs185-project-react/static/js/2.655a9030.chunk.js",
-    "static/js/2.655a9030.chunk.js.map": "/cs185-project-react/static/js/2.655a9030.chunk.js.map",
+    "static/js/2.a6a2c1b5.chunk.js": "/cs185-project-react/static/js/2.a6a2c1b5.chunk.js",
+    "static/js/2.a6a2c1b5.chunk.js.map": "/cs185-project-react/static/js/2.a6a2c1b5.chunk.js.map",
     "index.html": "/cs185-project-react/index.html",
-    "precache-manifest.b6c6d28d91b636b8070ee29e6b67c964.js": "/cs185-project-react/precache-manifest.b6c6d28d91b636b8070ee29e6b67c964.js",
+    "precache-manifest.c4193c76fb987b29509462def43524ef.js": "/cs185-project-react/precache-manifest.c4193c76fb987b29509462def43524ef.js",
     "service-worker.js": "/cs185-project-react/service-worker.js",
     "static/css/2.ccab356c.chunk.css.map": "/cs185-project-react/static/css/2.ccab356c.chunk.css.map",
-    "static/css/main.89f2e38d.chunk.css.map": "/cs185-project-react/static/css/main.89f2e38d.chunk.css.map",
-    "static/js/2.655a9030.chunk.js.LICENSE.txt": "/cs185-project-react/static/js/2.655a9030.chunk.js.LICENSE.txt",
+    "static/css/main.cf4a627b.chunk.css.map": "/cs185-project-react/static/css/main.cf4a627b.chunk.css.map",
+    "static/js/2.a6a2c1b5.chunk.js.LICENSE.txt": "/cs185-project-react/static/js/2.a6a2c1b5.chunk.js.LICENSE.txt",
     "static/media/App.css": "/cs185-project-react/static/media/ABeeZee-Regular.c6d6bab0.ttf",
     "static/media/back-to-top.png": "/cs185-project-react/static/media/back-to-top.2d354e7e.png",
     "static/media/beach.jpg": "/cs185-project-react/static/media/beach.d67f0015.jpg",
@@ -29,8 +29,8 @@
   "entrypoints": [
     "static/js/runtime-main.9c810152.js",
     "static/css/2.ccab356c.chunk.css",
-    "static/js/2.655a9030.chunk.js",
-    "static/css/main.89f2e38d.chunk.css",
-    "static/js/main.15fd8772.chunk.js"
+    "static/js/2.a6a2c1b5.chunk.js",
+    "static/css/main.cf4a627b.chunk.css",
+    "static/js/main.7885edb7.chunk.js"
   ]
 }
