@@ -33,12 +33,12 @@ export class Graph extends Component {
 			let movies = snapshot.val();
 
 			let moviesLength = Object.values(movies).length;
-			console.log(moviesLength);
 			Object.values(movies).forEach(movie => {
 				movie.type = 'movie';
 				
 				movieNodes.push(movie);
 
+				console.log(movie);
 				movie.actors.forEach(actor => {
 					let exists = false;
 					let actorIndex = -1;
@@ -57,7 +57,6 @@ export class Graph extends Component {
 						link = {
 							source: movieNodes.length - 1,
 							target: moviesLength + actorIndex,
-							value: 100
 						};
 					} else {
 						let node = {
@@ -69,7 +68,6 @@ export class Graph extends Component {
 						link = {
 							source: movieNodes.length - 1,
 							target: moviesLength + actorNodes.length - 1,
-							value: 50
 						};
 					}
 	
@@ -80,9 +78,6 @@ export class Graph extends Component {
 			movieNodes = this.state.nodes.movies.concat(movieNodes);
 			actorNodes = this.state.nodes.actors.concat(actorNodes);
 			links = this.state.links.concat(links);
-
-			console.log(movieNodes.concat(actorNodes));
-			console.log(links);
 	
 			this.setState({
 				'nodes': {
@@ -128,63 +123,38 @@ export class Graph extends Component {
 		let width = 1920;
 		let height = 1080;
 
-		let nodes = this.state.nodes.movies.concat(this.state.nodes.actors);
-		let objNodes = nodes.map(d => Object.create(d));
-		let objLinks = this.state.links.map(d => Object.create(d));
+		let allNodes = this.state.nodes.movies.concat(this.state.nodes.actors);
+		let movieNodes = this.state.nodes.movies;
+		let links = this.state.links;
 
 		let svg = d3.create('svg')
 			.attr('viewBox', [0, 0, width, height]);
 		
-		let simulation = d3.forceSimulation(objNodes)
-			.force('link', d3.forceLink().links(this.state.links).id(d => { console.log(d); return d.index; }).distance(200))
-			.force('link2', d3.forceLink().links(this.state.links).id(d => { if (d.type === 'actor') return d.index; }).distance(400))
+		let simulation = d3.forceSimulation(allNodes)
+			.force('link', d3.forceLink().links(links).id(d => { return d.index; }).distance(200))
 			.force('repel', d3.forceManyBody().distanceMin(100).distanceMax(500).strength(-300))
 			.force('attract', d3.forceManyBody().distanceMin(300).distanceMax(1000).strength(100))
 			.force('center', d3.forceCenter(width / 2, height / 2));
 
-		let radius = (node) => {
-			if (node.type === 'movie')
-				return 100;
-			return 50;
-		}
-
-		let fill = (node) => {
-			if (node.type === 'movie')
-				return d3.color('black');
-			return d3.color('steelblue');
-		}
-		
 		let link = svg.append('g')
 			.attr('stroke', '#999')
 			.attr('stroke-opacity', 0.6)
 			.selectAll('line')
-			.data(objLinks)
+			.data(links)
 			.join('line')
-			.attr('stroke-width', d => Math.sqrt(d.value));
+			.attr('stroke-width', 2);
 
-		let node = svg.append('g')
-			.attr('stroke', '#fff')
-			.attr('stroke-width', 1.5)
-			.selectAll('circle')
-			.data(objNodes)
-			.join('circle')
-			.attr('r', radius)
-			.attr('fill', fill)
-			.call(this.drag(simulation));
-		
-		node.select(function(d) {
-				if (d.type === 'movie') {
-					console.log(d);
-					return this;
-				}
-			})
-			.append('image')
-			.attr('xlink:href', d => d.poster)
-			.attr('x', -50)
-			.attr('y', -50)
-			.attr('width', 100)
-			.attr('height', 100)
-			// .call(this.drag(simulation));
+		let radius = (node) => {
+			if (node.type === 'movie')
+				return 100;
+			return 20;
+		}
+
+		let fill = (node) => {
+			if (node.type === 'movie')
+				return 'url(#' + node.title.replace(/[ ']/g, '_') + '-' + node.year + ')';
+			return d3.color('steelblue');
+		}
 		
 		let hovering = false;
 		let hoverId = '';
@@ -195,7 +165,7 @@ export class Graph extends Component {
 				.attr('id', 'text-' + i)
 				.style('text-anchor', 'middle')
 				.attr('x', () => d.x)
-				.attr('y', () => d.y + 75)
+				.attr('y', () => d.y + 50)
 				.text(d.name);
 			
 			hovering = true;
@@ -208,19 +178,36 @@ export class Graph extends Component {
 
 			hovering = false;
 		}
+		
+		let defs = svg.append('defs');
 
-		node.select(function(d) {
-				if (d.type === 'actor') {
-					return this;
-				}
-			})
-			// .join('circle')
-			// .attr('r', 50)
-			// .attr('fill', 'steelblue')
+		movieNodes.forEach(movieNode => {
+			defs.append('pattern')
+				.attr('id', movieNode.title.replace(/[ ']/g, '_') + '-' + movieNode.year)
+				.attr('width', 1)
+				.attr('height', 1)
+				.attr('x', 0)
+				.attr('y', 0)
+				.append('image')
+				.attr('xlink:href', movieNode.poster)
+				.attr('width', 300)
+				.attr('height', 300)
+				.attr('x', -50)
+				.attr('y', -50);
+		});
+
+		let node = svg.append('g')
+			.attr('stroke', '#fff')
+			.attr('stroke-width', 1.5)
+			.selectAll('circle')
+			.data(allNodes)
+			.join('circle')
+			.attr('r', radius)
+			.attr('fill', fill)
 			.on('mouseover', handleMouseOver)
 			.on('mouseout', handleMouseOut)
-			// .call(this.drag(simulation));
-
+			.call(this.drag(simulation));
+		
 		simulation.on('tick', () => {
 			link.attr('x1', d => d.source.x)
 				.attr('y1', d => d.source.y)
@@ -229,11 +216,11 @@ export class Graph extends Component {
 
 			node.attr('cx', d => d.x)
 				.attr('cy', d => d.y);
-			
+
 			if (hovering) {
 				d3.select('#' + hoverId)
 					.attr('x', () => hoverNode.x)
-					.attr('y', () => hoverNode.y + 75);
+					.attr('y', () => hoverNode.y + 50);
 			}
 		});
 

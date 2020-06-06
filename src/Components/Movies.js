@@ -297,6 +297,7 @@ export class Movies extends Component {
 			movie.year = response.data.Year;
 			movie.plot = response.data.Plot;
 			movie.rating = response.data.imdbRating;
+			movie.actors = response.data.Actors.split(', ');
 
 			Axios.get('https://api.themoviedb.org/3/search/movie?api_key=' + process.env.REACT_APP_TMDB_API_KEY +'&language=en-US&query=' + movie.title + '&page=1&year=' + movie.year)
 			.then(response => {
