@@ -4,23 +4,24 @@ import Projects from './Projects';
 import Images from './Images';
 import Videos from './Videos';
 import Guestbook from './Guestbook';
-import BackToTop from '../Images/back-to-top.png';
-import { Switch, Route } from 'react-router-dom';
 import Movies from './Movies';
+import Graph from './Graph';
+import BackToTop from '../Images/back-to-top.png';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 export class Body extends Component {
 	constructor() {
 		super();
 		this.state = {
 			backToTopVisible: false
-		}
+		};
 	}
 	
 	componentDidMount() {
 		document.addEventListener('scroll', () => {
 			this.setState({
 				backToTopVisible: window.pageYOffset > 100
-			})
+			});
 		});
 	}
 
@@ -38,11 +39,16 @@ export class Body extends Component {
 			return <Guestbook/>
 		} else if (activeTab === 5) {
 			return <Movies/>
+		} else if (activeTab === 6) {
+			return <Graph/>
 		}
 	}
 
 	routeContents = () => {
 		return <Switch>
+			<Route path="/" exact>
+				<Redirect to="/cs185-project-react/" />
+			</Route>
 			<Route path="/cs185-project-react/" exact>
 				<Home/>
 			</Route>
@@ -60,6 +66,9 @@ export class Body extends Component {
 			</Route>
 			<Route path="/cs185-project-react/movies">
 				<Movies/>
+			</Route>
+			<Route path="/cs185-project-react/graph">
+				<Graph/>
 			</Route>
 		</Switch>
 	}
